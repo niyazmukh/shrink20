@@ -148,6 +148,17 @@ function initTooltipPortal() {
   });
 }
 
+function ensureCanvasMatchesCssSize(canvas) {
+  const dpr = Math.max(1, window.devicePixelRatio || 1);
+  const rect = canvas.getBoundingClientRect();
+  if (!rect.width || !rect.height) return false;
+  const w = Math.max(1, Math.floor(rect.width * dpr));
+  const h = Math.max(1, Math.floor(rect.height * dpr));
+  if (canvas.width !== w) canvas.width = w;
+  if (canvas.height !== h) canvas.height = h;
+  return true;
+}
+
 function setChartView(view) {
   const setActive = (el, active) => el.classList.toggle("is-active", active);
   const profitBtn = document.querySelector('.segBtn[data-chart="profit"]');
@@ -334,7 +345,10 @@ async function main() {
   document.querySelectorAll(".tab").forEach((b) => b.addEventListener("click", () => setTab(b.dataset.tab)));
 
   document.querySelectorAll(".segBtn").forEach((b) =>
-    b.addEventListener("click", () => setChartView(b.dataset.chart))
+    b.addEventListener("click", () => {
+      setChartView(b.dataset.chart);
+      refreshCharts();
+    })
   );
   setChartView("profit");
 
@@ -345,7 +359,7 @@ async function main() {
     alpha: 0.3,
     V_I: 0.08,
     V_U: 8.0,
-    strictQStar: false,
+    strictQStar: true,
     Q_star: 60,
     N: 100000,
     seed: 12345
@@ -531,38 +545,44 @@ async function main() {
   function refreshCharts() {
     if (!cachedSweep) cachedSweep = computeSweep();
 
-    plotMultiLineChart($("chart-profit"), {
-      series: [{ name: "Expected profit", color: "#2563eb", points: cachedSweep.profitPoints }],
-      xLabel: "Q (grams)",
-      yLabel: "Profit ($)",
-      markerX: state.Q,
-      markerY: hasRun ? lastSim.profit : null,
-      legend: true
-    });
+    const profitCanvas = $("chart-profit");
+    if (ensureCanvasMatchesCssSize(profitCanvas)) {
+      plotMultiLineChart(profitCanvas, {
+        series: [{ name: "Expected profit", color: "#2563eb", points: cachedSweep.profitPoints }],
+        xLabel: "Q (grams)",
+        yLabel: "Profit ($)",
+        markerX: state.Q,
+        markerY: hasRun ? lastSim.profit : null,
+        legend: true
+      });
+    }
 
-    plotMultiLineChart($("chart-demand"), {
-      series: [
-        { name: "D_i(Q)", color: "#16a34a", points: cachedSweep.dIPoints },
-        { name: "D_u(P)", color: "#f59e0b", points: cachedSweep.dUPoints },
-        { name: "Total", color: "#2563eb", points: cachedSweep.totalPoints }
-      ],
-      xLabel: "Q (grams)",
-      yLabel: "Share",
-      markerX: state.Q,
-      markerY: expectedShares({
-        P: state.P,
-        Q: state.Q,
-        alpha: state.alpha,
-        V_I: state.V_I,
-        V_U: state.V_U,
-        strictQStar: state.strictQStar,
-        Q_star: state.Q_star
-      }).total,
-      markerColor: "rgba(15, 23, 42, 0.9)",
-      yDomain: [0, 1],
-      yTickFormat: (v) => v.toFixed(2),
-      legend: true
-    });
+    const demandCanvas = $("chart-demand");
+    if (ensureCanvasMatchesCssSize(demandCanvas)) {
+      plotMultiLineChart(demandCanvas, {
+        series: [
+          { name: "D_i(Q)", color: "#16a34a", points: cachedSweep.dIPoints },
+          { name: "D_u(P)", color: "#f59e0b", points: cachedSweep.dUPoints },
+          { name: "Total", color: "#2563eb", points: cachedSweep.totalPoints }
+        ],
+        xLabel: "Q (grams)",
+        yLabel: "Share",
+        markerX: state.Q,
+        markerY: expectedShares({
+          P: state.P,
+          Q: state.Q,
+          alpha: state.alpha,
+          V_I: state.V_I,
+          V_U: state.V_U,
+          strictQStar: state.strictQStar,
+          Q_star: state.Q_star
+        }).total,
+        markerColor: "rgba(15, 23, 42, 0.9)",
+        yDomain: [0, 1],
+        yTickFormat: (v) => v.toFixed(2),
+        legend: true
+      });
+    }
 
     const caption = $("profit-caption");
     const analytic = expectedProfit({
@@ -641,6 +661,19 @@ async function main() {
     if (!p) return;
     applyParamsToSimulation(p);
   });
+
+  // Expand/collapse charts
+  const analyticsPanel = $("panel-analytics");
+  const btnExpand = $("btn-chart-expand");
+  let chartsExpanded = false;
+  function setChartsExpanded(v) {
+    chartsExpanded = Boolean(v);
+    analyticsPanel.classList.toggle("is-expanded", chartsExpanded);
+    btnExpand.textContent = chartsExpanded ? "Collapse" : "Expand";
+    refreshCharts();
+  }
+  btnExpand.addEventListener("click", () => setChartsExpanded(!chartsExpanded));
+  setChartsExpanded(false);
 
   // Buttons
   $("btn-run").addEventListener("click", () => {
@@ -761,6 +794,16 @@ async function main() {
   refreshHud();
   refreshCharts();
   configureWorkerImmediate();
+
+  // Keep charts crisp when the window is resized (and when scrollbars appear/disappear).
+  let resizeTimer = null;
+  window.addEventListener("resize", () => {
+    if (resizeTimer) clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(() => {
+      resizeTimer = null;
+      refreshCharts();
+    }, 80);
+  });
 
   initTutorial({
     getSimulationParams,

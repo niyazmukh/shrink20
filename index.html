@@ -391,17 +391,20 @@ pi(Q) = (P - C*Q) * [ alpha*D_i(Q) + (1-alpha)*D_u(P) ]</code></pre>
               </div>
             </div>
 
-            <div class="panel tight">
+            <div class="panel tight analyticsPanel" id="panel-analytics">
               <div class="panelHeader">
                 <h2>Analytics</h2>
-                <div class="seg" role="tablist" aria-label="Analytics views">
-                  <button class="segBtn is-active tt" type="button" data-chart="profit" role="tab" aria-selected="true" data-tooltip="Shows expected profit as a function of Q, under the analytic (closed-form) model.">Profit</button>
-                  <button class="segBtn tt" type="button" data-chart="demand" role="tab" aria-selected="false" data-tooltip="Shows demand shares (informed, uninformed, total) as a function of Q, under the analytic model.">Demand</button>
+                <div class="panelHeaderRight">
+                  <button id="btn-chart-expand" class="tt" type="button" data-tooltip="Toggles a taller chart for easier reading.">Expand</button>
+                  <div class="seg" role="tablist" aria-label="Analytics views">
+                    <button class="segBtn is-active tt" type="button" data-chart="profit" role="tab" aria-selected="true" data-tooltip="Shows expected profit as a function of Q, under the analytic (closed-form) model.">Profit</button>
+                    <button class="segBtn tt" type="button" data-chart="demand" role="tab" aria-selected="false" data-tooltip="Shows demand shares (informed, uninformed, total) as a function of Q, under the analytic model.">Demand</button>
+                  </div>
                 </div>
               </div>
 
               <div class="chartView is-active" id="chartview-profit" role="tabpanel">
-                <canvas id="chart-profit" width="920" height="240" aria-label="Profit vs quantity chart"></canvas>
+                <canvas id="chart-profit" class="chartCanvas" aria-label="Profit vs quantity chart"></canvas>
                 <div class="row">
                   <button id="btn-optimize" class="tt" type="button" data-tooltip="Sets Q to the quantity that maximizes analytic expected profit (by sweeping Q).">Set Q to argmax</button>
                   <button id="btn-export" class="tt" type="button" data-tooltip="Downloads the analytic sweep table as CSV so you can graph or compare externally.">Export sweep CSV</button>
@@ -410,7 +413,7 @@ pi(Q) = (P - C*Q) * [ alpha*D_i(Q) + (1-alpha)*D_u(P) ]</code></pre>
               </div>
 
               <div class="chartView" id="chartview-demand" role="tabpanel">
-                <canvas id="chart-demand" width="920" height="240" aria-label="Demand vs quantity chart"></canvas>
+                <canvas id="chart-demand" class="chartCanvas" aria-label="Demand vs quantity chart"></canvas>
                 <div class="muted small">
                   Total demand is the mixture <code>alpha*D_i(Q) + (1-alpha)*D_u(P)</code>. In Strict mode, <code>D_u</code> is multiplied by <code>1{Q &gt; Q*}</code>.
                 </div>
@@ -559,10 +562,12 @@ pi(Q) = (P - C*Q) * [ alpha*D_i(Q) + (1-alpha)*D_u(P) ]</code></pre>
       </section>
     </main>
 
-    <footer style="text-align: center; padding: 2rem 1rem; color: var(--muted); font-size: 0.875rem;">
-      <p>
-        Model by <a href="https://www.yefimroth.com/" target="_blank" rel="noopener noreferrer" style="color: inherit; text-decoration: underline;">Yefim Roth</a>, Vlad Streltsin, and Eitan Gerstner.
-      </p>
+    <footer class="footer" aria-label="Credits">
+      <div class="footerInner">
+        Model by
+        <a class="footerLink" href="https://www.yefimroth.com/" target="_blank" rel="noopener noreferrer">Yefim Roth</a>,
+        Vlad Streltsin, and Eitan Gerstner.
+      </div>
     </footer>
 
     <script type="module" src="./src/main.js"></script>

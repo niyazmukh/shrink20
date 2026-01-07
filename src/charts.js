@@ -53,8 +53,8 @@ function drawAxes(ctx, { w, h, pad, xMin, xMax, yMin, yMax, xLabel, yLabel, yTic
   ctx.font = "11px ui-sans-serif, system-ui";
   ctx.textAlign = "left";
   ctx.textBaseline = "alphabetic";
-  if (xLabel) ctx.fillText(xLabel, pad.l, h - 10);
-  if (yLabel) ctx.fillText(yLabel, 10, pad.t + 12);
+  if (xLabel) ctx.fillText(xLabel, pad.l, h - 8);
+  if (yLabel) ctx.fillText(yLabel, pad.l, Math.max(12, pad.t - 12));
 }
 
 export function plotMultiLineChart(
@@ -80,7 +80,8 @@ export function plotMultiLineChart(
   const h = canvas.height;
   ctx.clearRect(0, 0, w, h);
 
-  const pad = { l: 38, r: 12, t: 10, b: 28 };
+  // Padding includes a small header area for yLabel + legend above the plot.
+  const pad = { l: 54, r: 14, t: 34, b: 34 };
   const plotW = w - pad.l - pad.r;
   const plotH = h - pad.t - pad.b;
 
@@ -111,23 +112,43 @@ export function plotMultiLineChart(
       ctx.font = "11px ui-sans-serif, system-ui";
       ctx.textBaseline = "middle";
       ctx.textAlign = "left";
-      let x = w - pad.r - 8;
-      const y = pad.t + 10;
-      for (let i = items.length - 1; i >= 0; i--) {
-        const item = items[i];
+      const y = Math.max(12, pad.t - 14);
+
+      const blocks = items.map((item) => {
         const label = String(item.name);
         const textW = ctx.measureText(label).width;
         const blockW = textW + 22;
-        x -= blockW;
-        ctx.strokeStyle = item.color ?? "rgba(78,160,255,0.9)";
+        return { item, label, blockW };
+      });
+      const totalW = blocks.reduce((acc, b) => acc + b.blockW, 0) + (blocks.length - 1) * 10;
+
+      // Background behind legend so it doesn't visually collide with chart lines.
+      const bgPadX = 8;
+      const bgPadY = 6;
+      const bgW = totalW + bgPadX * 2;
+      const bgH = 18 + bgPadY * 2;
+      const bgX = Math.max(pad.l, w - pad.r - 8 - bgW);
+      const bgY = y - 9 - bgPadY;
+      ctx.fillStyle = "rgba(255,255,255,0.88)";
+      ctx.strokeStyle = theme.border;
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      if (typeof ctx.roundRect === "function") ctx.roundRect(bgX, bgY, bgW, bgH, 10);
+      else ctx.rect(bgX, bgY, bgW, bgH);
+      ctx.fill();
+      ctx.stroke();
+
+      let x = bgX + bgPadX;
+      for (const b of blocks) {
+        ctx.strokeStyle = b.item.color ?? "#2563eb";
         ctx.lineWidth = 3;
         ctx.beginPath();
         ctx.moveTo(x, y);
         ctx.lineTo(x + 14, y);
         ctx.stroke();
         ctx.fillStyle = theme.text;
-        ctx.fillText(label, x + 18, y);
-        x -= 10;
+        ctx.fillText(b.label, x + 18, y);
+        x += b.blockW + 10;
       }
     }
   }
