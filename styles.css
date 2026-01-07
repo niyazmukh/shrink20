@@ -111,6 +111,7 @@ code {
 .panel {
   max-width: 1100px;
   margin: 0 auto;
+  width: 100%;
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius);
@@ -140,8 +141,63 @@ code {
   height: 320px;
 }
 
-.analyticsPanel.is-expanded .chartCanvas {
-  height: 520px;
+.chartActionsRow {
+  flex-wrap: wrap;
+  align-items: flex-start;
+}
+
+.chartActionBtn {
+  flex: 0 0 170px;
+}
+
+#profit-caption {
+  flex: 1 1 auto;
+  min-width: 220px;
+}
+
+.modalBackdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.22);
+  backdrop-filter: blur(6px);
+  z-index: 900;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 18px;
+}
+
+.modalBackdrop.is-hidden {
+  display: none;
+}
+
+.modalShell {
+  width: min(1280px, 96vw);
+  height: min(860px, calc(100vh - 80px));
+  min-height: 520px;
+  max-height: calc(100vh - 80px);
+  display: flex;
+  align-items: stretch;
+  justify-content: stretch;
+}
+
+.modalContent {
+  width: 100%;
+  height: 100%;
+  display: flex;
+}
+
+.analyticsPanel.is-focus {
+  max-width: none;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.analyticsPanel.is-focus .chartCanvas {
+  height: min(64vh, 660px);
 }
 
 h1,
@@ -197,6 +253,45 @@ button {
 button.primary {
   border-color: rgba(37, 99, 235, 0.35);
   background: rgba(37, 99, 235, 0.08);
+}
+
+.iconBtn {
+  width: 38px;
+  height: 38px;
+  padding: 0;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-color: rgba(37, 99, 235, 0.22);
+  background: rgba(37, 99, 235, 0.05);
+}
+
+.iconBtn:hover {
+  background: rgba(37, 99, 235, 0.08);
+}
+
+.iconBtn:focus-visible {
+  outline: 2px solid rgba(37, 99, 235, 0.55);
+  outline-offset: 2px;
+}
+
+.icon {
+  width: 18px;
+  height: 18px;
+  display: block;
+}
+
+.iconBtn .icon-collapse {
+  display: none;
+}
+
+.iconBtn.is-on .icon-expand {
+  display: none;
+}
+
+.iconBtn.is-on .icon-collapse {
+  display: block;
 }
 
 button:disabled {
@@ -539,7 +634,11 @@ select:focus-visible {
   display: flex;
   flex-direction: column;
   gap: 12px;
-  overflow: auto;
+  width: 420px;
+  min-width: 420px;
+  max-width: 420px;
+  overflow-x: hidden;
+  overflow-y: auto;
   padding-right: 4px;
 }
 
@@ -562,10 +661,13 @@ select:focus-visible {
 
 input[type="range"] {
   width: 100%;
+  min-width: 0;
 }
 
 output {
   min-width: 74px;
+  flex: 0 0 86px;
+  white-space: nowrap;
   text-align: right;
   color: var(--muted);
   font-size: 12px;
@@ -635,6 +737,13 @@ details.math > summary {
     grid-template-columns: 1fr;
   }
 
+  .sidebar {
+    width: auto;
+    min-width: 0;
+    max-width: none;
+    padding-right: 0;
+  }
+
   .kpis {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
@@ -656,8 +765,14 @@ details.math > summary {
     height: 300px;
   }
 
-  .analyticsPanel.is-expanded .chartCanvas {
-    height: 460px;
+  .modalShell {
+    width: 96vw;
+    height: calc(100vh - 120px);
+    min-height: 420px;
+  }
+
+  .analyticsPanel.is-focus .chartCanvas {
+    height: min(56vh, 520px);
   }
 }
 

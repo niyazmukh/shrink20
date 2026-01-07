@@ -342,7 +342,17 @@ function initTutorial({ getSimulationParams, applyToSimulation, openSimulationTa
 
 async function main() {
   initTooltipPortal();
-  document.querySelectorAll(".tab").forEach((b) => b.addEventListener("click", () => setTab(b.dataset.tab)));
+  function scheduleChartsRefresh() {
+    window.requestAnimationFrame(() => window.requestAnimationFrame(refreshCharts));
+  }
+
+  document.querySelectorAll(".tab").forEach((b) =>
+    b.addEventListener("click", () => {
+      const tab = String(b.dataset.tab || "");
+      setTab(tab);
+      if (tab === "simulation") scheduleChartsRefresh();
+    })
+  );
 
   document.querySelectorAll(".segBtn").forEach((b) =>
     b.addEventListener("click", () => {
@@ -553,6 +563,7 @@ async function main() {
         yLabel: "Profit ($)",
         markerX: state.Q,
         markerY: hasRun ? lastSim.profit : null,
+        markerColor: "rgba(22,163,74,0.95)",
         legend: true
       });
     }
@@ -577,7 +588,7 @@ async function main() {
           strictQStar: state.strictQStar,
           Q_star: state.Q_star
         }).total,
-        markerColor: "rgba(15, 23, 42, 0.9)",
+        markerColor: "rgba(22,163,74,0.95)",
         yDomain: [0, 1],
         yTickFormat: (v) => v.toFixed(2),
         legend: true
@@ -613,7 +624,8 @@ async function main() {
     state.N = Number(inpN.input.value);
     state.seed = Number(inpSeed.value || "1");
 
-    selPreset.value = "custom";
+    const detected = detectPresetKey(getSimulationParams());
+    if (selPreset.value !== detected) selPreset.value = detected;
     refreshAnalytic();
     refreshHud();
     refreshCharts();
@@ -650,9 +662,31 @@ async function main() {
   // Presets
   const presets = {
     shrink: { P: 5.25, Q: 60, C: 0.010, alpha: 0.12, V_I: 0.08, V_U: 9.0, Q_star: 60, strictQStar: true },
-    normal: { P: 4.0, Q: 110, C: 0.020, alpha: 0.75, V_I: 0.08, V_U: 8.0, Q_star: 60, strictQStar: false },
-    bonus: { P: 4.0, Q: 140, C: 0.020, alpha: 0.55, V_I: 0.08, V_U: 8.0, Q_star: 60, strictQStar: false }
+    normal: { P: 4.0, Q: 110, C: 0.020, alpha: 0.75, V_I: 0.08, V_U: 8.0, Q_star: 60 },
+    bonus: { P: 4.0, Q: 140, C: 0.020, alpha: 0.55, V_I: 0.08, V_U: 8.0, Q_star: 60 }
   };
+
+  function detectPresetKey(params) {
+    const eq = (a, b, tol) => Math.abs(Number(a) - Number(b)) <= tol;
+    const same = (a, b) => String(a) === String(b);
+
+    for (const [key, p] of Object.entries(presets)) {
+      const strictOk = !Object.prototype.hasOwnProperty.call(p, "strictQStar") || same(Boolean(params.strictQStar), Boolean(p.strictQStar));
+      if (
+        eq(params.P, p.P, 0.005) &&
+        eq(params.Q, p.Q, 0.5) &&
+        eq(params.C, p.C, 0.00005) &&
+        eq(params.alpha, p.alpha, 0.0005) &&
+        eq(params.V_I, p.V_I, 0.00025) &&
+        eq(params.V_U, p.V_U, 0.005) &&
+        eq(params.Q_star, p.Q_star, 0.5) &&
+        strictOk
+      ) {
+        return key;
+      }
+    }
+    return "custom";
+  }
 
   selPreset.addEventListener("change", () => {
     const key = String(selPreset.value);
@@ -664,16 +698,52 @@ async function main() {
 
   // Expand/collapse charts
   const analyticsPanel = $("panel-analytics");
-  const btnExpand = $("btn-chart-expand");
-  let chartsExpanded = false;
-  function setChartsExpanded(v) {
-    chartsExpanded = Boolean(v);
-    analyticsPanel.classList.toggle("is-expanded", chartsExpanded);
-    btnExpand.textContent = chartsExpanded ? "Collapse" : "Expand";
+  const analyticsAnchor = $("analytics-anchor");
+  const modalBackdrop = $("modal-backdrop");
+  const modalContent = $("modal-content");
+  const btnFocus = $("btn-analytics-focus");
+  let isFocused = false;
+  let focusedBefore = null;
+
+  function openFocus() {
+    if (isFocused) return;
+    isFocused = true;
+    focusedBefore = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    modalBackdrop.classList.remove("is-hidden");
+    modalBackdrop.setAttribute("aria-hidden", "false");
+    analyticsPanel.classList.add("is-focus");
+    modalContent.appendChild(analyticsPanel);
+    btnFocus.classList.add("is-on");
+    btnFocus.setAttribute("aria-pressed", "true");
+    btnFocus.setAttribute("aria-label", "Close analytics focus view");
+    btnFocus.setAttribute("data-tooltip", "Closes the focused analytics view.");
     refreshCharts();
+    btnFocus.focus();
   }
-  btnExpand.addEventListener("click", () => setChartsExpanded(!chartsExpanded));
-  setChartsExpanded(false);
+
+  function closeFocus() {
+    if (!isFocused) return;
+    isFocused = false;
+    analyticsPanel.classList.remove("is-focus");
+    analyticsAnchor.parentElement?.insertBefore(analyticsPanel, analyticsAnchor.nextSibling);
+    modalBackdrop.classList.add("is-hidden");
+    modalBackdrop.setAttribute("aria-hidden", "true");
+    btnFocus.classList.remove("is-on");
+    btnFocus.setAttribute("aria-pressed", "false");
+    btnFocus.setAttribute("aria-label", "Open analytics focus view");
+    btnFocus.setAttribute("data-tooltip", "Opens Analytics in a focused, full-screen view.");
+    refreshCharts();
+    focusedBefore?.focus();
+  }
+
+  btnFocus.addEventListener("click", () => (isFocused ? closeFocus() : openFocus()));
+  modalBackdrop.addEventListener("pointerdown", (e) => {
+    if (e.target === modalBackdrop) closeFocus();
+  });
+  window.addEventListener("keydown", (e) => {
+    if (!isFocused) return;
+    if (e.key === "Escape") closeFocus();
+  });
 
   // Buttons
   $("btn-run").addEventListener("click", () => {
@@ -808,7 +878,10 @@ async function main() {
   initTutorial({
     getSimulationParams,
     applyToSimulation: applyParamsToSimulation,
-    openSimulationTab: () => setTab("simulation")
+    openSimulationTab: () => {
+      setTab("simulation");
+      scheduleChartsRefresh();
+    }
   });
 }
 

@@ -22,7 +22,7 @@ function getTheme() {
   };
 }
 
-function drawAxes(ctx, { w, h, pad, xMin, xMax, yMin, yMax, xLabel, yLabel, yTickFormat, theme }) {
+function drawAxes(ctx, { w, h, pad, xMin, xMax, yMin, yMax, xLabel, yLabel, yTickFormat, xTickFormat, theme }) {
   const plotW = w - pad.l - pad.r;
   const plotH = h - pad.t - pad.b;
 
@@ -32,6 +32,41 @@ function drawAxes(ctx, { w, h, pad, xMin, xMax, yMin, yMax, xLabel, yLabel, yTic
   ctx.strokeStyle = theme.border;
   ctx.lineWidth = 1;
   ctx.strokeRect(pad.l, pad.t, plotW, plotH);
+
+  const xSpan = xMax - xMin || 1;
+  const xTick = niceNumber(xSpan / 6);
+  const formatX =
+    typeof xTickFormat === "function"
+      ? xTickFormat
+      : (v) => {
+          const step = Math.abs(xTick);
+          if (step >= 1) return v.toFixed(0);
+          if (step >= 0.1) return v.toFixed(1);
+          return v.toFixed(2);
+        };
+
+  const xToPx = (x) => pad.l + ((x - xMin) / (xMax - xMin || 1)) * plotW;
+
+  const xTicks = new Set([xMin, xMax]);
+  for (let x = Math.ceil(xMin / xTick) * xTick; x <= xMax + 1e-9; x += xTick) xTicks.add(x);
+
+  ctx.fillStyle = theme.text;
+  ctx.font = "11px ui-sans-serif, system-ui";
+  ctx.textBaseline = "top";
+  for (const x of Array.from(xTicks).sort((a, b) => a - b)) {
+    const px = xToPx(x);
+    ctx.strokeStyle = theme.grid;
+    ctx.beginPath();
+    ctx.moveTo(px, pad.t);
+    ctx.lineTo(px, pad.t + plotH);
+    ctx.stroke();
+
+    if (px < pad.l - 1 || px > pad.l + plotW + 1) continue;
+    if (px <= pad.l + 12) ctx.textAlign = "left";
+    else if (px >= pad.l + plotW - 12) ctx.textAlign = "right";
+    else ctx.textAlign = "center";
+    ctx.fillText(formatX(x), px, pad.t + plotH + 6);
+  }
 
   const tick = niceNumber((yMax - yMin) / 4);
   ctx.fillStyle = theme.text;
@@ -54,7 +89,7 @@ function drawAxes(ctx, { w, h, pad, xMin, xMax, yMin, yMax, xLabel, yLabel, yTic
   ctx.textAlign = "left";
   ctx.textBaseline = "alphabetic";
   if (xLabel) ctx.fillText(xLabel, pad.l, h - 8);
-  if (yLabel) ctx.fillText(yLabel, pad.l, Math.max(12, pad.t - 12));
+  if (yLabel) ctx.fillText(yLabel, pad.l, Math.max(14, pad.t - 18));
 }
 
 export function plotMultiLineChart(
@@ -127,7 +162,7 @@ export function plotMultiLineChart(
       const bgPadY = 6;
       const bgW = totalW + bgPadX * 2;
       const bgH = 18 + bgPadY * 2;
-      const bgX = Math.max(pad.l, w - pad.r - 8 - bgW);
+      const bgX = Math.max(pad.l + 140, w - pad.r - 8 - bgW);
       const bgY = y - 9 - bgPadY;
       ctx.fillStyle = "rgba(255,255,255,0.88)";
       ctx.strokeStyle = theme.border;
@@ -168,21 +203,32 @@ export function plotMultiLineChart(
 
   if (markerX != null) {
     const mx = xToPx(markerX);
-    ctx.strokeStyle = theme.grid;
-    ctx.lineWidth = 1;
+    ctx.save();
+    ctx.globalAlpha = 0.75;
+    ctx.strokeStyle = markerColor;
+    ctx.lineWidth = 2;
     ctx.beginPath();
     ctx.moveTo(mx, pad.t);
     ctx.lineTo(mx, pad.t + plotH);
     ctx.stroke();
+    ctx.restore();
   }
 
   if (markerX != null && markerY != null && Number.isFinite(markerY)) {
     const mx = xToPx(markerX);
     const my = yToPx(markerY);
+    ctx.fillStyle = "rgba(255,255,255,0.95)";
+    ctx.beginPath();
+    ctx.arc(mx, my, 7, 0, Math.PI * 2);
+    ctx.fill();
+
     ctx.fillStyle = markerColor;
     ctx.beginPath();
-    ctx.arc(mx, my, 4, 0, Math.PI * 2);
+    ctx.arc(mx, my, 5, 0, Math.PI * 2);
     ctx.fill();
+    ctx.strokeStyle = "rgba(15,23,42,0.22)";
+    ctx.lineWidth = 1;
+    ctx.stroke();
   }
 }
 

@@ -391,23 +391,52 @@ pi(Q) = (P - C*Q) * [ alpha*D_i(Q) + (1-alpha)*D_u(P) ]</code></pre>
               </div>
             </div>
 
+            <div id="analytics-anchor"></div>
             <div class="panel tight analyticsPanel" id="panel-analytics">
               <div class="panelHeader">
                 <h2>Analytics</h2>
                 <div class="panelHeaderRight">
-                  <button id="btn-chart-expand" class="tt" type="button" data-tooltip="Toggles a taller chart for easier reading.">Expand</button>
                   <div class="seg" role="tablist" aria-label="Analytics views">
                     <button class="segBtn is-active tt" type="button" data-chart="profit" role="tab" aria-selected="true" data-tooltip="Shows expected profit as a function of Q, under the analytic (closed-form) model.">Profit</button>
                     <button class="segBtn tt" type="button" data-chart="demand" role="tab" aria-selected="false" data-tooltip="Shows demand shares (informed, uninformed, total) as a function of Q, under the analytic model.">Demand</button>
                   </div>
+                  <button
+                    id="btn-analytics-focus"
+                    class="iconBtn tt"
+                    type="button"
+                    aria-pressed="false"
+                    aria-label="Open analytics focus view"
+                    data-tooltip="Opens Analytics in a focused, full-screen view."
+                  >
+                    <svg class="icon icon-expand" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                      <path
+                        d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3M3 16v3a2 2 0 0 0 2 2h3m13-5v3a2 2 0 0 1-2 2h-3"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      />
+                    </svg>
+                    <svg class="icon icon-collapse" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                      <path
+                        d="M9 9H5a2 2 0 0 1-2-2V3m12 6h4a2 2 0 0 0 2-2V3M3 21v-4a2 2 0 0 1 2-2h4m12 6v-4a2 2 0 0 0-2-2h-4"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      />
+                    </svg>
+                  </button>
                 </div>
               </div>
 
               <div class="chartView is-active" id="chartview-profit" role="tabpanel">
                 <canvas id="chart-profit" class="chartCanvas" aria-label="Profit vs quantity chart"></canvas>
-                <div class="row">
-                  <button id="btn-optimize" class="tt" type="button" data-tooltip="Sets Q to the quantity that maximizes analytic expected profit (by sweeping Q).">Set Q to argmax</button>
-                  <button id="btn-export" class="tt" type="button" data-tooltip="Downloads the analytic sweep table as CSV so you can graph or compare externally.">Export sweep CSV</button>
+                <div class="row chartActionsRow">
+                  <button id="btn-optimize" class="chartActionBtn tt" type="button" data-tooltip="Sets Q to the quantity that maximizes analytic expected profit (by sweeping Q).">Set Q to argmax</button>
+                  <button id="btn-export" class="chartActionBtn tt" type="button" data-tooltip="Downloads the analytic sweep table as CSV so you can graph or compare externally.">Export sweep CSV</button>
                   <span class="muted small" id="profit-caption"></span>
                 </div>
               </div>
@@ -561,6 +590,12 @@ pi(Q) = (P - C*Q) * [ alpha*D_i(Q) + (1-alpha)*D_u(P) ]</code></pre>
         </div>
       </section>
     </main>
+
+    <div id="modal-backdrop" class="modalBackdrop is-hidden" aria-hidden="true">
+      <div class="modalShell" role="dialog" aria-modal="true" aria-label="Analytics focus view">
+        <div id="modal-content" class="modalContent"></div>
+      </div>
+    </div>
 
     <footer class="footer" aria-label="Credits">
       <div class="footerInner">
