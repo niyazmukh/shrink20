@@ -8,7 +8,7 @@ The underlying model is credited to Yefim Roth, Vlad Streltsin, and Eitan Gerstn
 
 ## Run Online
 
-[**Click here to run the simulation**](https://niyazmukh.github.io/shrink20/)
+[**Click here to run the simulation**](https://niyaz.me/shrink20/)
 
 ## Run Locally
 
