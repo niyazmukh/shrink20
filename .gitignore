@@ -1,0 +1,19 @@
+# Dependencies
+node_modules/
+
+# System Files
+.DS_Store
+Thumbs.db
+*.log
+
+# Editor Directories
+.vscode/
+.idea/
+
+# Local Environment
+.env
+.env.local
+
+# Local helper scripts (use npm scripts instead)
+dev.cmd
+test.cmd
