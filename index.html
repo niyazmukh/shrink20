@@ -1,0 +1,564 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Shrink Ray vs. 20% Free Model</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <div class="title">
+        <div class="appname">Shrink Ray vs. 20% Free Model</div>
+        <div class="subtitle">A simple story + transparent equations + an optional simulation check</div>
+      </div>
+      <nav class="tabs" aria-label="Main navigation">
+        <button class="tab is-active" data-tab="tutorial" type="button">Tutorial</button>
+        <button class="tab" data-tab="simulation" type="button">Simulation</button>
+      </nav>
+    </header>
+
+    <main class="layout">
+      <section class="view is-active" id="view-tutorial">
+        <div class="panel tutorial">
+          <header class="tutorialHeader">
+            <div>
+              <h1>A guided story</h1>
+              <p class="muted">
+                You will see why changing <code>Q</code> (quantity in the box) can mimic a price change, and when a
+                firm prefers "Shrink Ray" (smaller quantity) versus "20% Free" (larger quantity).
+              </p>
+            </div>
+            <div class="tutorialProgress" aria-label="Tutorial progress">
+              <div class="tutorialStepCount"><span id="tut-step-num"></span> / 5</div>
+              <div class="tutorialDots" id="tut-dots" aria-hidden="true"></div>
+            </div>
+          </header>
+
+          <section class="tutorialBody">
+            <nav class="tutorialNavList" aria-label="Tutorial steps">
+              <button class="stepLink is-active" type="button" data-step="0">1. What changes?</button>
+              <button class="stepLink" type="button" data-step="1">2. Two kinds of shoppers</button>
+              <button class="stepLink" type="button" data-step="2">3. From people to demand</button>
+              <button class="stepLink" type="button" data-step="3">4. Profit and regimes</button>
+              <button class="stepLink" type="button" data-step="4">5. Try Shrink vs 20% Free</button>
+            </nav>
+
+            <div class="tutorialStage is-active" data-step="0">
+              <h2>1) What changes when the sticker price stays the same?</h2>
+              <p>
+                Imagine a product that usually costs <code>P</code> dollars. One day the sticker price is unchanged,
+                but the amount inside the package is different.
+              </p>
+              <div class="callout">
+                <div class="callout-title">Key idea</div>
+                <p class="small muted" style="margin: 6px 0 0">
+                  Holding <code>P</code> fixed and changing <code>Q</code> changes the <strong>unit price</strong>
+                  <code>P / Q</code>. Some shoppers notice unit price changes; others mostly do not.
+                </p>
+              </div>
+
+              <div class="tutCard">
+                <div class="tutCardTitle">Try it (watch unit price move)</div>
+                <div class="grid2">
+                  <div class="field">
+                    <label class="labelRow" for="tut-p">
+                      Sticker price <code>P</code>
+                      <button
+                        class="help"
+                        type="button"
+                        aria-label="Help: sticker price P"
+                        data-tooltip="Sticker price is what you see on the shelf (and usually remember). In this story, P stays fixed while Q changes."
+                      >
+                        ?
+                      </button>
+                    </label>
+                    <div class="fieldRow">
+                      <input id="tut-p" type="range" min="0" max="12" step="0.01" />
+                      <output id="tut-out-p"></output>
+                    </div>
+                  </div>
+                  <div class="field">
+                    <label class="labelRow" for="tut-q">
+                      Quantity <code>Q</code> (grams)
+                      <button
+                        class="help"
+                        type="button"
+                        aria-label="Help: quantity Q"
+                        data-tooltip="Quantity is how much product is inside the package. Lower Q means you pay more per gram (higher P/Q)."
+                      >
+                        ?
+                      </button>
+                    </label>
+                    <div class="fieldRow">
+                      <input id="tut-q" type="range" min="1" max="160" step="1" />
+                      <output id="tut-out-q"></output>
+                    </div>
+                  </div>
+                </div>
+                <div class="tutResult">
+                  <div><span class="muted">Unit price</span> <span class="mono" id="tut-unit"></span></div>
+                </div>
+              </div>
+
+              <details class="math">
+                <summary>Why not just change the sticker price?</summary>
+                <p class="small muted" style="margin: 10px 0 0">
+                  In many retail settings, changing shelf prices is costly (menu costs), and consumers can be more
+                  sensitive to sticker price changes than quantity changes. That makes quantity an attractive "quiet"
+                  lever for firms.
+                </p>
+              </details>
+            </div>
+
+            <div class="tutorialStage" data-step="1">
+              <h2>2) Two kinds of shoppers</h2>
+              <p>
+                The model is built around a simple behavioral split:
+              </p>
+              <div class="callout">
+                <div class="callout-title">Informed vs uninformed</div>
+                <ul>
+                  <li><strong>Informed</strong> shoppers look at unit price and compare <code>P / Q</code> to their value per gram.</li>
+                  <li><strong>Uninformed</strong> shoppers mostly respond to the sticker price <code>P</code>, unless the quantity drop is obvious.</li>
+                </ul>
+              </div>
+
+              <p class="small muted">
+                In the interactive model, values are "willingness to pay": how much someone personally thinks the product is worth.
+              </p>
+
+              <div class="tutCard">
+                <div class="tutCardTitle">Try it (one shopper of each type)</div>
+                <div class="grid2">
+                  <div class="field">
+                    <label class="labelRow" for="tut-vi">
+                      Informed value <code>V_i</code> ($/gram)
+                      <button class="help" type="button" aria-label="Help: V_i" data-tooltip="V_i is this informed shopper's value per gram. They buy if V_i >= P/Q.">?</button>
+                    </label>
+                    <div class="fieldRow">
+                      <input id="tut-vi" type="range" min="0" max="0.2" step="0.0005" />
+                      <output id="tut-out-vi"></output>
+                    </div>
+                  </div>
+                  <div class="field">
+                    <label class="labelRow" for="tut-vu">
+                      Uninformed value <code>V_u</code> ($/box)
+                      <button class="help" type="button" aria-label="Help: V_u" data-tooltip="V_u is this uninformed shopper's value for the whole box. They buy if V_u >= P (and, in strict mode, only if Q > Q*).">?</button>
+                    </label>
+                    <div class="fieldRow">
+                      <input id="tut-vu" type="range" min="0" max="24" step="0.01" />
+                      <output id="tut-out-vu"></output>
+                    </div>
+                  </div>
+                </div>
+                <div class="grid2">
+                  <div class="field">
+                    <label class="labelRow" for="tut-qstar">
+                      Notice threshold <code>Q*</code>
+                      <button class="help" type="button" aria-label="Help: Q*" data-tooltip="Q* is the minimum quantity where shrink is not noticed. In strict mode, uninformed shoppers only buy if Q > Q*.">?</button>
+                    </label>
+                    <div class="fieldRow">
+                      <input id="tut-qstar" type="range" min="0" max="160" step="1" />
+                      <output id="tut-out-qstar"></output>
+                    </div>
+                  </div>
+                  <div class="field">
+                    <label class="check">
+                      <input id="tut-strict" type="checkbox" />
+                      <span>Strict notice rule (uninformed buy only if <code>Q &gt; Q*</code>)</span>
+                    </label>
+                  </div>
+                </div>
+                <div class="tutResult">
+                  <div><span class="muted">Informed decision</span> <span class="badge" id="tut-buy-i"></span></div>
+                  <div><span class="muted">Uninformed decision</span> <span class="badge" id="tut-buy-u"></span></div>
+                </div>
+              </div>
+
+              <details class="math">
+                <summary>Math details (optional)</summary>
+                <pre class="formula"><code>Informed buys if:   V_i >= P/Q
+Uninformed buys if: V_u >= P   and (optionally) Q > Q*</code></pre>
+              </details>
+            </div>
+
+            <div class="tutorialStage" data-step="2">
+              <h2>3) From people to demand</h2>
+              <p>
+                A single person is unpredictable, but a crowd becomes predictable if you assume a distribution of values.
+                The paper uses a uniform distribution to get clean closed-form equations.
+              </p>
+              <div class="tutCard">
+                <div class="tutCardTitle">Assumptions you can see</div>
+                <p class="small muted" style="margin: 0 0 10px">
+                  Here <code>V_I</code> and <code>V_U</code> are the maximum possible values in each group. Bigger maxima mean
+                  more people are willing to buy.
+                </p>
+                <div class="grid2">
+                  <div class="field">
+                    <label class="labelRow" for="tut-alpha">
+                      Informed share <code>alpha</code>
+                      <button class="help" type="button" aria-label="Help: alpha" data-tooltip="alpha is the fraction of shoppers who are informed (unit-price sensitive). 1-alpha are uninformed (sticker-price sensitive).">?</button>
+                    </label>
+                    <div class="fieldRow">
+                      <input id="tut-alpha" type="range" min="0" max="1" step="0.001" />
+                      <output id="tut-out-alpha"></output>
+                    </div>
+                  </div>
+                  <div class="field">
+                    <label class="labelRow" for="tut-vi-max">
+                      Max informed value <code>V_I</code> ($/gram)
+                      <button class="help" type="button" aria-label="Help: V_I" data-tooltip="V_I is the maximum value per gram among informed shoppers (uniform).">?</button>
+                    </label>
+                    <div class="fieldRow">
+                      <input id="tut-vi-max" type="range" min="0.001" max="0.2" step="0.0005" />
+                      <output id="tut-out-vi-max"></output>
+                    </div>
+                  </div>
+                </div>
+                <div class="grid2">
+                  <div class="field">
+                    <label class="labelRow" for="tut-vu-max">
+                      Max uninformed value <code>V_U</code> ($/box)
+                      <button class="help" type="button" aria-label="Help: V_U" data-tooltip="V_U is the maximum value for the whole box among uninformed shoppers (uniform).">?</button>
+                    </label>
+                    <div class="fieldRow">
+                      <input id="tut-vu-max" type="range" min="0.1" max="24" step="0.01" />
+                      <output id="tut-out-vu-max"></output>
+                    </div>
+                  </div>
+                  <div class="tutResult">
+                    <div><span class="muted">Informed demand D_i(Q)</span> <span class="mono" id="tut-di"></span></div>
+                    <div><span class="muted">Uninformed demand D_u(P)</span> <span class="mono" id="tut-du"></span></div>
+                    <div><span class="muted">Total demand</span> <span class="mono" id="tut-dtot"></span></div>
+                  </div>
+                </div>
+              </div>
+
+              <details class="math">
+                <summary>Math details (optional)</summary>
+                <pre class="formula"><code>Assume: V_i ~ Uniform[0, V_I] and V_u ~ Uniform[0, V_U]
+
+D_i(Q) = max(0, 1 - P/(Q * V_I))
+D_u(P) = max(0, 1 - P/V_U)
+
+Total demand = alpha * D_i(Q) + (1 - alpha) * D_u(P)
+(In strict mode, D_u is multiplied by 1{Q > Q*}.)</code></pre>
+              </details>
+            </div>
+
+            <div class="tutorialStage" data-step="3">
+              <h2>4) Profit and regimes</h2>
+              <p>
+                The firm's margin per sold box is <code>P - C*Q</code>. Lowering <code>Q</code> reduces cost (good) but raises unit price (bad for informed demand).
+              </p>
+
+              <div class="tutCard">
+                <div class="tutCardTitle">Try it (see the tradeoff)</div>
+                <div class="grid2">
+                  <div class="field">
+                    <label class="labelRow" for="tut-c">
+                      Unit cost <code>C</code> ($/gram)
+                      <button class="help" type="button" aria-label="Help: unit cost C" data-tooltip="C is the manufacturer's cost per gram. Higher C makes smaller Q (less cost) more attractive.">?</button>
+                    </label>
+                    <div class="fieldRow">
+                      <input id="tut-c" type="range" min="0" max="0.08" step="0.0001" />
+                      <output id="tut-out-c"></output>
+                    </div>
+                  </div>
+                  <div class="tutResult">
+                    <div><span class="muted">Margin per box</span> <span class="mono" id="tut-margin"></span></div>
+                    <div><span class="muted">Expected profit (per customer)</span> <span class="mono" id="tut-profit"></span></div>
+                    <div><span class="muted">Regime boundary</span> <span class="mono" id="tut-boundary"></span></div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="callout">
+                <div class="callout-title">Two typical outcomes</div>
+                <ul>
+                  <li>
+                    <strong>Shrink Ray regime:</strong> <code>Q</code> is low enough that informed demand collapses, so profit comes mostly from uninformed buyers.
+                  </li>
+                  <li>
+                    <strong>Normal regime:</strong> <code>Q</code> is high enough that informed buyers still participate, which pushes the firm toward a larger quantity.
+                  </li>
+                </ul>
+              </div>
+
+              <details class="math">
+                <summary>Math details (optional)</summary>
+                <pre class="formula"><code>Margin per box: (P - C*Q)
+
+Expected profit per customer:
+pi(Q) = (P - C*Q) * [ alpha*D_i(Q) + (1-alpha)*D_u(P) ]</code></pre>
+                <p class="small muted" style="margin: 10px 0 0">
+                  The simulation tab computes analytic expectations from these equations, then runs a Monte Carlo
+                  simulation to show how close the sampled outcome is.
+                </p>
+              </details>
+            </div>
+
+            <div class="tutorialStage" data-step="4">
+              <h2>5) Try Shrink Ray vs 20% Free</h2>
+              <p>
+                Both tactics can use the same packaging: the firm changes how much product is inside while keeping the sticker price the same.
+              </p>
+              <ul>
+                <li><strong>Shrink Ray:</strong> decrease <code>Q</code> -&gt; unit price goes up -&gt; informed buyers are the first to leave.</li>
+                <li><strong>20% Free:</strong> increase <code>Q</code> -&gt; unit price goes down -&gt; informed buyers are more likely to buy.</li>
+              </ul>
+              <div class="tutCard">
+                <div class="tutCardTitle">What to do next</div>
+                <ol class="small muted" style="margin: 0; padding-left: 18px">
+                  <li>Open the simulation.</li>
+                  <li>Pick a scenario (Shrink-ray likely vs "20% Free").</li>
+                  <li>Click Run, then compare simulated profit to analytic profit.</li>
+                  <li>Use "Set Q to argmax" to see what quantity the model prefers for your settings.</li>
+                </ol>
+              </div>
+              <div class="row">
+                <button id="tut-apply-to-sim" class="primary" type="button">Use these parameters in simulation</button>
+                <button id="jump-to-sim" type="button">Open simulation</button>
+              </div>
+              <p class="muted small">
+                Transparency note: the simulation uses the same buy rules as the tutorial, sampled from uniform distributions.
+              </p>
+            </div>
+          </section>
+
+          <footer class="tutorialFooter">
+            <button id="tut-prev" type="button">Back</button>
+            <button id="tut-next" class="primary" type="button">Next</button>
+          </footer>
+        </div>
+      </section>
+
+      <section class="view" id="view-simulation">
+        <div class="sim">
+          <section class="maincol">
+            <div class="panel tight">
+              <div class="kpis">
+                <div class="kpi">
+                  <div class="kpiLabel">
+                    Regime
+                    <button class="help" type="button" aria-label="Help: regime" data-tooltip="Shrink-ray means Q <= P/V_I, so informed demand collapses (D_i(Q)=0).">?</button>
+                  </div>
+                  <div class="kpiValue" id="pill-regime"></div>
+                </div>
+                <div class="kpi">
+                  <div class="kpiLabel">
+                    Unit price
+                    <button class="help" type="button" aria-label="Help: unit price" data-tooltip="Unit price is P/Q ($ per gram). Informed shoppers compare this to their value per gram.">?</button>
+                  </div>
+                  <div class="kpiValue" id="stat-unit-price"></div>
+                </div>
+                <div class="kpi">
+                  <div class="kpiLabel">
+                    Margin/box
+                    <button class="help" type="button" aria-label="Help: margin" data-tooltip="Margin per sold box is P - C*Q. Profit depends on both margin and the chance of a sale.">?</button>
+                  </div>
+                  <div class="kpiValue" id="stat-margin"></div>
+                </div>
+                <div class="kpi">
+                  <div class="kpiLabel">
+                    Analytic profit
+                    <button class="help" type="button" aria-label="Help: analytic profit" data-tooltip="Expected profit under the uniform closed-form assumptions (no randomness).">?</button>
+                  </div>
+                  <div class="kpiValue" id="stat-analytic-profit"></div>
+                </div>
+                <div class="kpi">
+                  <div class="kpiLabel">
+                    Sim profit
+                    <button class="help" type="button" aria-label="Help: simulated profit" data-tooltip="Monte Carlo estimate from N sampled shoppers. Click Run to compute.">?</button>
+                  </div>
+                  <div class="kpiValue" id="stat-profit"></div>
+                </div>
+                <div class="kpi">
+                  <div class="kpiLabel">
+                    Error
+                    <button class="help" type="button" aria-label="Help: error" data-tooltip="Percent error = (sim - analytic)/analytic. Shown after running the simulation.">?</button>
+                  </div>
+                  <div class="kpiValue" id="stat-error"></div>
+                </div>
+              </div>
+              <div class="progressRow">
+                <progress id="sim-progress" max="1" value="0"></progress>
+                <div class="muted small">
+                  <span id="stat-processed"></span> processed - sold <span id="stat-sold"></span> (<span id="stat-sold-breakdown"></span>) - analytic sold <span id="stat-analytic-sold"></span>
+                </div>
+              </div>
+            </div>
+
+            <div class="panel tight">
+              <div class="panelHeader">
+                <h2>Analytics</h2>
+                <div class="seg" role="tablist" aria-label="Analytics views">
+                  <button class="segBtn is-active tt" type="button" data-chart="profit" role="tab" aria-selected="true" data-tooltip="Shows expected profit as a function of Q, under the analytic (closed-form) model.">Profit</button>
+                  <button class="segBtn tt" type="button" data-chart="demand" role="tab" aria-selected="false" data-tooltip="Shows demand shares (informed, uninformed, total) as a function of Q, under the analytic model.">Demand</button>
+                </div>
+              </div>
+
+              <div class="chartView is-active" id="chartview-profit" role="tabpanel">
+                <canvas id="chart-profit" width="920" height="240" aria-label="Profit vs quantity chart"></canvas>
+                <div class="row">
+                  <button id="btn-optimize" class="tt" type="button" data-tooltip="Sets Q to the quantity that maximizes analytic expected profit (by sweeping Q).">Set Q to argmax</button>
+                  <button id="btn-export" class="tt" type="button" data-tooltip="Downloads the analytic sweep table as CSV so you can graph or compare externally.">Export sweep CSV</button>
+                  <span class="muted small" id="profit-caption"></span>
+                </div>
+              </div>
+
+              <div class="chartView" id="chartview-demand" role="tabpanel">
+                <canvas id="chart-demand" width="920" height="240" aria-label="Demand vs quantity chart"></canvas>
+                <div class="muted small">
+                  Total demand is the mixture <code>alpha*D_i(Q) + (1-alpha)*D_u(P)</code>. In Strict mode, <code>D_u</code> is multiplied by <code>1{Q &gt; Q*}</code>.
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <aside class="sidebar">
+            <div class="panel tight">
+              <div class="panelHeader">
+                <h2>Controls</h2>
+                <div class="muted small" id="sim-status"></div>
+              </div>
+
+              <div class="field">
+                <label class="labelRow" for="sel-preset">
+                  Scenario
+                  <button class="help" type="button" aria-label="Help: scenario presets" data-tooltip="Presets set a coherent parameter bundle so you can see regime differences quickly.">?</button>
+                </label>
+                <select id="sel-preset">
+                  <option value="custom">Custom</option>
+                  <option value="shrink">Shrink-ray likely</option>
+                  <option value="normal">Normal market</option>
+                  <option value="bonus">"20% Free" / bonus pack</option>
+                </select>
+              </div>
+
+              <div class="field">
+                <label class="labelRow" for="inp-q">
+                  Quantity <code>Q</code> (grams)
+                  <button class="help" type="button" aria-label="Help: quantity Q" data-tooltip="Firm choice variable. Lower Q raises unit price P/Q (hurts informed demand) but lowers cost C*Q (helps margin).">?</button>
+                </label>
+                <div class="fieldRow">
+                  <input id="inp-q" type="range" min="1" max="160" step="1" />
+                  <output id="out-q"></output>
+                </div>
+              </div>
+
+              <div class="field">
+                <label class="labelRow" for="inp-p">
+                  Sticker price <code>P</code> ($)
+                  <button class="help" type="button" aria-label="Help: sticker price P" data-tooltip="Price printed on the shelf/box. In this model P is treated as fixed while Q moves.">?</button>
+                </label>
+                <div class="fieldRow">
+                  <input id="inp-p" type="range" min="0" max="12" step="0.01" />
+                  <output id="out-p"></output>
+                </div>
+              </div>
+
+              <div class="field">
+                <label class="labelRow" for="inp-c">
+                  Unit cost <code>C</code> ($/gram)
+                  <button class="help" type="button" aria-label="Help: unit cost C" data-tooltip="Manufacturer cost per gram. Profit per sold box is P - C*Q.">?</button>
+                </label>
+                <div class="fieldRow">
+                  <input id="inp-c" type="range" min="0" max="0.08" step="0.0001" />
+                  <output id="out-c"></output>
+                </div>
+              </div>
+
+              <div class="field">
+                <label class="labelRow" for="inp-alpha">
+                  Informed share <code>alpha</code>
+                  <button class="help" type="button" aria-label="Help: alpha" data-tooltip="Fraction of shoppers who compare unit price P/Q (informed). The rest (1-alpha) respond mainly to sticker price P (uninformed).">?</button>
+                </label>
+                <div class="fieldRow">
+                  <input id="inp-alpha" type="range" min="0" max="1" step="0.001" />
+                  <output id="out-alpha"></output>
+                </div>
+              </div>
+
+              <details class="advanced">
+                <summary>Advanced parameters</summary>
+
+                <div class="field">
+                  <label class="labelRow" for="inp-vi">
+                    Max informed value <code>V_I</code> ($/gram)
+                    <button class="help" type="button" aria-label="Help: V_I" data-tooltip="Uniform upper bound for informed values. Higher V_I makes informed demand more resilient to shrink.">?</button>
+                  </label>
+                  <div class="fieldRow">
+                    <input id="inp-vi" type="range" min="0.001" max="0.2" step="0.0005" />
+                    <output id="out-vi"></output>
+                  </div>
+                </div>
+
+                <div class="field">
+                  <label class="labelRow" for="inp-vu">
+                    Max uninformed value <code>V_U</code> ($/box)
+                    <button class="help" type="button" aria-label="Help: V_U" data-tooltip="Uniform upper bound for uninformed values for the whole box. Higher V_U increases uninformed demand at any P.">?</button>
+                  </label>
+                  <div class="fieldRow">
+                    <input id="inp-vu" type="range" min="0.1" max="24" step="0.01" />
+                    <output id="out-vu"></output>
+                  </div>
+                </div>
+
+                <div class="field">
+                  <label class="labelRow" for="inp-qstar">
+                    Notice threshold <code>Q*</code> (grams)
+                    <button class="help" type="button" aria-label="Help: Q*" data-tooltip="Minimum quantity for uninformed shoppers to not notice shrink. Used only when strict mode is enabled.">?</button>
+                  </label>
+                  <div class="fieldRow">
+                    <input id="inp-qstar" type="range" min="0" max="160" step="1" />
+                    <output id="out-qstar"></output>
+                  </div>
+                </div>
+
+                <div class="field">
+                  <label class="check">
+                    <input id="inp-strict" type="checkbox" />
+                    <span>Strict notice rule</span>
+                    <button class="help" type="button" aria-label="Help: strict notice rule" data-tooltip="If enabled, uninformed demand is multiplied by 1{Q > Q*}. If disabled, uninformed buyers ignore Q and only compare V_u to P.">?</button>
+                  </label>
+                </div>
+
+                <div class="field">
+                  <label class="labelRow" for="inp-n">
+                    Customers per run <code>N</code>
+                    <button class="help" type="button" aria-label="Help: N" data-tooltip="Monte Carlo sample size. Larger N reduces randomness but increases run time.">?</button>
+                  </label>
+                  <div class="fieldRow">
+                    <input id="inp-n" type="range" min="1000" max="300000" step="1000" />
+                    <output id="out-n"></output>
+                  </div>
+                </div>
+
+                <div class="field">
+                  <label class="labelRow" for="inp-seed">
+                    Seed
+                    <button class="help" type="button" aria-label="Help: seed" data-tooltip="Random seed for reproducibility. Same seed and parameters produce the same simulation outcome.">?</button>
+                  </label>
+                  <div class="fieldRow">
+                    <input id="inp-seed" type="number" min="1" step="1" />
+                  </div>
+                </div>
+              </details>
+
+              <div class="row">
+                <button id="btn-run" class="primary tt" type="button" data-tooltip="Runs the Monte Carlo simulation with N sampled shoppers.">Run</button>
+                <button id="btn-pause" class="tt" type="button" data-tooltip="Pauses the simulation (you can resume by clicking Run).">Pause</button>
+                <button id="btn-reset" class="tt" type="button" data-tooltip="Resets the simulation counters for the current parameters.">Reset</button>
+              </div>
+            </div>
+          </aside>
+        </div>
+      </section>
+    </main>
+
+    <script type="module" src="./src/main.js"></script>
+  </body>
+</html>
