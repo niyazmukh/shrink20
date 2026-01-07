@@ -6,7 +6,14 @@ This repo is a small, dependency-free web app that implements the "Shrink Ray" q
 
 The underlying model is credited to Yefim Roth, Vlad Streltsin, and Eitan Gerstner.
 
-## Run
+## Run Online (No Install)
+
+Click below to run the simulation in your browser immediately:
+
+[![Open in StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz.svg)](https://stackblitz.com/github/niyazmukh/shrink20)
+[![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/niyazmukh/shrink20)
+
+## Run Locally
 
 1. Start the local server (PowerShell may block `npm.ps1`):
    - `node server.mjs` (or `dev.cmd`)
