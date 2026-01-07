@@ -17,3 +17,8 @@ Thumbs.db
 # Local helper scripts (use npm scripts instead)
 dev.cmd
 test.cmd
+
+# Dev files
+PRD.md
+server.mjs
+test/

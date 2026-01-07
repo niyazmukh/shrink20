@@ -12,8 +12,9 @@ The underlying model is credited to Yefim Roth, Vlad Streltsin, and Eitan Gerstn
 
 ## Run Locally
 
-1. Start the local server (PowerShell may block `npm.ps1`):
-   - `node server.mjs` (or `dev.cmd`)
+1. Start a local web server in this directory (e.g., using Python or VS Code Live Server):
+   - `python -m http.server 5173`
+   - or `npx serve .`
 2. Open `http://localhost:5173`
 
 ## Fidelity notes
@@ -28,7 +29,3 @@ The underlying model is credited to Yefim Roth, Vlad Streltsin, and Eitan Gerstn
 - Expected profit sweep vs `Q` (with "Set Q to argmax")
 - Demand decomposition chart (informed / uninformed / total)
 - CSV export for the analytic sweep
-
-## Tests
-
-- `node --test` (or `test.cmd`)
